@@ -86,7 +86,7 @@ Resources:
             Resource: '*'
             Condition:
               ArnLike:
-                kms:EncryptionContext:aws:logs:arn: !Sub arn:aws:logs:us-east-1:${AWS::AccountId}:log-group:${pBedrockLogGroupName}
+                kms:EncryptionContext:aws:logs:arn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${pBedrockLogGroupName}
           - Effect: Allow
             Principal:
               Service: logging.s3.amazonaws.com
@@ -108,7 +108,7 @@ Resources:
             Resource: '*'
             Condition:
               ArnLike:
-                aws:SourceArn: !Sub arn:aws:bedrock:us-east-1:${AWS::AccountId}:*
+                aws:SourceArn: !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:*
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
     UpdateReplacePolicy: Retain
@@ -143,7 +143,7 @@ Resources:
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
               ArnLike:
-                aws:SourceArn: !Sub arn:aws:bedrock:us-east-1:${AWS::AccountId}:*
+                aws:SourceArn: !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:*
             Effect: Allow
             Principal:
               Service: bedrock.amazonaws.com
@@ -267,7 +267,7 @@ Resources:
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
               ArnLike:
-                aws:SourceArn: !Sub arn:aws:bedrock:us-east-1:${AWS::AccountId}:*
+                aws:SourceArn: !Sub arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:*
             Effect: Allow
             Principal:
               Service: bedrock.amazonaws.com
