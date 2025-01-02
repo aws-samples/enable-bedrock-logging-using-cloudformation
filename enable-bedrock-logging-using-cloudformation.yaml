@@ -14,7 +14,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # AWSTemplateFormatVersion: '2010-09-09'
-# Description: This asset enables logging for Amazon Bedrock model invocations, improving observability and compliance for GenAI applications. It provides an AWS CloudFormation template that automates the setup of logging infrastructure for Bedrock, including S3 buckets, CloudWatch Logs, and KMS encryption. The solution supports logging for text, image, and embedding data delivery, allowing developers to quickly implement logging in their Bedrock-powered applications and gain operational insights (uksb-lw1k6obiex).
+# Description: This CloudFormation template automates the provisioning of infrastructure resources for logging and enables Amazon Bedrock model invocation logging. (uksb-lw1k6obiex).
 Parameters:
   pKMSKeyAlias:
     Default: 'alias/bedrock-logs'
