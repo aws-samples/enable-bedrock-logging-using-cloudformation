@@ -13,8 +13,9 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# AWSTemplateFormatVersion: '2010-09-09'
-# Description: This CloudFormation template automates the provisioning of infrastructure resources for logging and enables Amazon Bedrock model invocation logging. (uksb-lw1k6obiex).
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This CloudFormation template automates the provisioning of infrastructure resources for logging and enables Amazon Bedrock model invocation logging (uksb-lw1k6obiex).
+
 Parameters:
   pKMSKeyAlias:
     Default: 'alias/bedrock-logs'
