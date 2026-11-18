@@ -137,10 +137,6 @@ Resources:
       AssumeRolePolicyDocument:
         Statement:
           - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: bedrock.amazonaws.com
-          - Action: sts:AssumeRole
             Condition:
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
@@ -204,7 +200,7 @@ Resources:
           - Action: s3:*
             Condition:
               Bool:
-                'aws:SecureTransport': 'false'
+                'aws:SecureTransport': false
             Effect: Deny
             Principal:
               AWS: '*'
@@ -256,7 +252,7 @@ Resources:
           - Action: s3:*
             Condition:
               Bool:
-                'aws:SecureTransport': 'false'
+                'aws:SecureTransport': false
             Effect: Deny
             Principal:
               AWS: '*'
@@ -325,7 +321,8 @@ Resources:
                           },
                           'textDataDeliveryEnabled': True,
                           'imageDataDeliveryEnabled': True,
-                          'embeddingDataDeliveryEnabled': True
+                          'embeddingDataDeliveryEnabled': True,
+                          'videoDataDeliveryEnabled': True
                       }
                   )
                   message = 'Operation to enable or update Bedrock logging succeeded'
@@ -380,6 +377,9 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
       Policies:
@@ -395,6 +395,9 @@ Resources:
                   - iam:PassRole
                 Effect: Allow
                 Resource: !GetAtt rBedrockServiceRoleForLogging.Arn
+                Condition:
+                  StringEquals:
+                    iam:PassedToService: bedrock.amazonaws.com
             Version: '2012-10-17'
           
 

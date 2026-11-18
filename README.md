@@ -20,6 +20,7 @@ AWS CloudFormation templates provisions necessary resources for Amazon Bedrock I
     + Text Data Delivery
     + Image Data Delivery
     + Embedding Data Delivery
+    + Video Data Delivery
 + Enables logging to CloudWatch Logs Group and S3 bucket
 
 ## List of Resources Created
