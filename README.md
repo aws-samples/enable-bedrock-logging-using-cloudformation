@@ -67,7 +67,7 @@ aws bedrock get-model-invocation-logging-configuration --region <region>
 ## Deleting the Stack
 + Deleting the stack disables Amazon Bedrock model invocation logging in that region.
 + The KMS key, the CloudWatch Logs log group and both S3 buckets have `DeletionPolicy: Retain` and are not deleted with the stack.
-+ Redeploying in the same region with the same parameters fails because the retained log group and buckets already exist. Delete or rename the retained resources, or deploy with different parameter values.
+
 
 ## Security
 This solution is provided as a proof-of-value and is not intended as a production-ready implementation. You are responsible for evaluating how the AWS Shared Responsibility Model applies to your specific use case and for implementing the necessary security controls to meet your organization's requirements. AWS provides a broad set of security tools and configurations to support your security objectives, and it is your responsibility as the developer to ensure all aspects of your application are appropriately secured for production use.
