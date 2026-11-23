@@ -137,10 +137,6 @@ Resources:
       AssumeRolePolicyDocument:
         Statement:
           - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: bedrock.amazonaws.com
-          - Action: sts:AssumeRole
             Condition:
               StringEquals:
                 aws:SourceAccount: !Ref AWS::AccountId
@@ -204,7 +200,7 @@ Resources:
           - Action: s3:*
             Condition:
               Bool:
-                'aws:SecureTransport': 'false'
+                'aws:SecureTransport': false
             Effect: Deny
             Principal:
               AWS: '*'
@@ -256,7 +252,7 @@ Resources:
           - Action: s3:*
             Condition:
               Bool:
-                'aws:SecureTransport': 'false'
+                'aws:SecureTransport': false
             Effect: Deny
             Principal:
               AWS: '*'
@@ -278,7 +274,7 @@ Resources:
   rBedrockLoggingLambdaFunction:
     Type: 'AWS::Lambda::Function'
     Properties:
-      Runtime: 'python3.13'
+      Runtime: 'python3.15'
       Handler: 'index.lambda_handler'
       Role: !GetAtt rBedrockLoggingLambdaExecutionRole.Arn
       Code:
@@ -286,18 +282,13 @@ Resources:
           # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
           # SPDX-License-Identifier: MIT-0
 
-          from __future__ import print_function
-          import json
           import boto3
-          import urllib3
+          import cfnresponse
           import os
-          SUCCESS = "SUCCESS"
-          FAILED = "FAILED"
-          http = urllib3.PoolManager()
 
 
           def lambda_handler(event, context):
-              print("Received event: " + json.dumps(event))
+              print(f"Received {event.get('RequestType')} request for {event.get('LogicalResourceId')} (RequestId: {event.get('RequestId')})")
               try:
                   cloudwatch_role_arn = os.environ['CLOUDWATCH_ROLE_ARN']
                   cloudwatch_log_group_name = os.environ['CLOUDWATCH_LOG_GROUP_NAME']
@@ -307,7 +298,7 @@ Resources:
               except Exception as e:
                   print(f"Error: {e}")
                   responseData = {'message': 'Operation Failed'}
-                  send(event, context, FAILED, responseData)
+                  cfnresponse.send(event, context, cfnresponse.FAILED, responseData)
                   
               
           def bedrock_logging(cloudwatch_role_arn,cloudwatch_log_group_name,s3_bucket_name,request_type,event,context):
@@ -325,7 +316,8 @@ Resources:
                           },
                           'textDataDeliveryEnabled': True,
                           'imageDataDeliveryEnabled': True,
-                          'embeddingDataDeliveryEnabled': True
+                          'embeddingDataDeliveryEnabled': True,
+                          'videoDataDeliveryEnabled': True
                       }
                   )
                   message = 'Operation to enable or update Bedrock logging succeeded'
@@ -333,37 +325,10 @@ Resources:
                   response = client.delete_model_invocation_logging_configuration()
                   message = 'Operation to disable Bedrock logging succeeded'
               else:
-                  send(event, context, FAILED, {'message': f'Unsupported request type: {request_type}'})
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {'message': f'Unsupported request type: {request_type}'})
                   return
-              status = SUCCESS if response['ResponseMetadata']['HTTPStatusCode'] == 200 else FAILED
-              send(event, context, status, {'message': message})
-
-
-          def send(event, context, responseStatus, responseData, physicalResourceId=None, noEcho=False, reason=None):
-              responseUrl = event['ResponseURL']
-              print(responseUrl)
-              responseBody = {
-                  'Status' : responseStatus,
-                  'Reason' : reason or "See the details in CloudWatch Log Stream: {}".format(context.log_stream_name),
-                  'PhysicalResourceId' : physicalResourceId or context.log_stream_name,
-                  'StackId' : event['StackId'],
-                  'RequestId' : event['RequestId'],
-                  'LogicalResourceId' : event['LogicalResourceId'],
-                  'NoEcho' : noEcho,
-                  'Data' : responseData
-              }
-              json_responseBody = json.dumps(responseBody)
-              print("Response body:")
-              print(json_responseBody)
-              headers = {
-                  'content-type' : '',
-                  'content-length' : str(len(json_responseBody))
-              }
-              try:
-                  response = http.request('PUT', responseUrl, headers=headers, body=json_responseBody)
-                  print("Status code:", response.status)
-              except Exception as e:
-                  print("send(..) failed executing http.request(..):", e)
+              status = cfnresponse.SUCCESS if response['ResponseMetadata']['HTTPStatusCode'] == 200 else cfnresponse.FAILED
+              cfnresponse.send(event, context, status, {'message': message})
       Environment:
         Variables:
           CLOUDWATCH_ROLE_ARN: !GetAtt rBedrockServiceRoleForLogging.Arn
@@ -380,6 +345,9 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
       Policies:
@@ -395,6 +363,9 @@ Resources:
                   - iam:PassRole
                 Effect: Allow
                 Resource: !GetAtt rBedrockServiceRoleForLogging.Arn
+                Condition:
+                  StringEquals:
+                    iam:PassedToService: bedrock.amazonaws.com
             Version: '2012-10-17'
           
 
